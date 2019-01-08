@@ -32,8 +32,10 @@ Options:
 
   --debug        Enable debug-on-error in Emacs
   --help         You're lookin' at it
-  --local PATH   Use git repo at PATH instead of official one on GitHub (helpful for development)
-  --upgrade      Upgrade matrix-client.el and required dependency upgrades before connecting
+
+  --branch BRANCH  Use repo BRANCH instead of master
+  --local PATH     Use git repo at PATH instead of official one on GitHub (helpful for development)
+  --upgrade        Upgrade matrix-client.el and required dependency upgrades before connecting
 EOF
 }
 
@@ -43,10 +45,14 @@ while [[ $1 ]]
 do
 [[ $1 == --debug ]] && debug="(setq debug-on-error t) (setq matrix-log t)"
 [[ $1 == --help ]] && usage && exit
+[[ $1 == --branch]] && {
+    shift
+    branch=":branch \"$1\""
+}
 [[ $1 == --local ]] && {
     shift
     [[ -d $1/.git ]] && [[ -r $1/.git ]] || die "Not a readable directory (should be a Git repo): $1"
-    recipe_part=":fetcher git :url ,(expand-file-name \"$1\")"
+    recipe_part=":fetcher git :url ,(expand-file-name \"$1\") $branch"
 }
 [[ $1 == --upgrade ]] && upgrade="(setq upgrade-matrix-client t) (setq quelpa-update-melpa-p t)"
 shift
